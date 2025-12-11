@@ -1,0 +1,15 @@
+networks:
+- x.x.x.x/24
+servers:
+- name: dns_master
+  ip: x.x.x.x
+  type: master
+  fqdn: ns1.mytest.lab
+- name: dns_secondary
+  ip: x.x.x.x
+  type: slave
+  fqdn: pc1.mytest.lab
+- name: client
+  ip: x.x.x.x
+  type: client
+  fqdn: pc2.mytest.lab

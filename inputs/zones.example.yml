@@ -1,0 +1,48 @@
+zones:
+- name: mytest.lab
+  serial: 2025092901
+  refresh: 86400
+  retry: 3600
+  expire: 604800
+  minimum: 10800
+  TTL: 86400
+  SOA:
+  - ns1.mytest.lab.
+  - root.mytest.lab.
+  dns_servers:
+  - ns1.mytest.lab.
+  - pc1.mytest.lab.
+  records:
+  - label: ns1
+    type: A
+    data: x.x.x.x
+  - label: pc1
+    type: A
+    data: x.x.x.x
+  - label: pc2
+    type: A
+    data: x.x.x.x 
+
+- name: x.x.x.in-addr.arpa
+  serial: 2025093001
+  refresh: 1D
+  retry: 1H
+  expire: 1W
+  minimum: 3H
+  TTL: 1D
+  SOA:
+  - ns1.mytest.lab.
+  - root.mytest.lab.
+  dns_servers:
+  - ns1.mytest.lab.
+  - pc1.mytest.lab.
+  records:
+  - label: 36
+    type: PTR
+    data: ns1.mytest.lab.
+  - label: 215
+    type: PTR
+    data: pc1.mytest.lab.
+  - label: 173
+    type: PTR
+    data: pc2.mytest.lab.

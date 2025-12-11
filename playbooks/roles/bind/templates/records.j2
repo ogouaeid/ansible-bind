@@ -1,0 +1,13 @@
+$TTL {{ item.TTL}} 
+@	IN SOA	{% for soa in item.SOA %}{{ soa }} {% endfor %} (
+					{{ item.serial }}	; serial
+					{{ item.refresh }}	        ; refresh
+					{{ item.retry }}	        ; retry
+					{{ item.expire}}	        ; expire
+					{{ item.minimum }} )           ; minimum 
+{% for srv in item.dns_servers %}
+@     IN	  NS	{{ srv }}
+{% endfor %}
+{% for r in item.records %}
+{{ r.label }}   IN 	  {{ r.type }} 	{{ r.data }}
+{% endfor %}

@@ -1,0 +1,15 @@
+# .ansible-lint.yml
+skip_list:
+  - var-naming[no-role-prefix]
+  - name[casing]
+  - risky-file-permissions
+  - no-changed-when
+  - fqcn[action-core]
+  - yaml[empty-lines]
+
+warn_list:
+  - yaml[truthy]
+  - yaml[trailing-spaces]
+  - yaml[new-line-at-end-of-file]
+  - yaml[indentation]
+  - jinja[spacing]

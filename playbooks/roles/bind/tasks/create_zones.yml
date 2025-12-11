@@ -1,0 +1,20 @@
+  - name: Create bind9 zone files (only in master)
+    template:
+      src: records.j2
+      dest: "/var/named/{{ item.name }}"
+    loop: "{{ zones }}"
+    when: inventory_hostname == 'dns_master'
+    notify:
+    - Reload bind
+  - name: Check validity of zone files
+    ansible.builtin.command: named-checkzone {{ item.name }} /var/named/{{ item.name }}
+    register: bind_reg_named_checkzone
+    become: true
+    become_user: root
+    loop: "{{ zones }}"
+      #    loop_control:
+      #      label: "{{ item.name }}"
+    when: inventory_hostname == 'dns_master'
+    changed_when: false
+    vars:
+      ansible_ssh_pipelining: true

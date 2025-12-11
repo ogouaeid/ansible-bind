@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  role_name: bind
+  namespace: ogouaeid
+  author: Oussama GOUAEID
+  description: role to install bind dns in RHEL servers
+  galaxy_tags:
+    - bind
+    - dns
+    - nameserver
+  platforms:
+    - name: redhat
+collections:
+    - ansible.posix

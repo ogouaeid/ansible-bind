@@ -1,0 +1,13 @@
+- name: main playbook
+  hosts: dns
+  gather_facts: no
+  vars_files:
+  - "{{playbook_dir}}/../inputs/servers.yml"
+  - "{{playbook_dir}}/../inputs/zones.yml"
+  vars:
+    # pick the server dict that matches the current host
+    item: "{{ servers | selectattr('name', 'equalto', inventory_hostname} | first }}"
+  become: true
+  become_user: root
+  roles:
+  - bind

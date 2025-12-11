@@ -1,0 +1,11 @@
+- name: Install bind packages and services and directories
+  include_tasks: install_bind.yml
+
+- name: Generate named.conf for each DNS server
+  include_tasks: create_config.yml
+
+- name: Generate zone files for each DNS server
+  include_tasks: create_zones.yml
+
+- name: test dns
+  include_tasks: test_dns.yml

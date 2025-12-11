@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  role_name: bind
+  author: Oussama GOUAEID
+  description: >
+    Install and configure BIND (master/slave) on RedHat-family systems,
+    with zone generation, validation and optional functional dig tests.
+  company: ""
+  license: MIT
+
+  min_ansible_version: "2.12"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+
+  galaxy_tags:
+    - dns
+    - bind
+    - named
+    - network
+    - infrastructure
+    - redhat
+    - automation
+
+dependencies: []

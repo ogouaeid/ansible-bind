@@ -1,0 +1,24 @@
+  - name: Configure bind9 named.conf files
+    template:
+      src: named.conf.j2
+      dest: "/etc/named.conf"
+    vars:
+      item: "{{ servers | selectattr('name', 'equalto', inventory_hostname) | first }}"
+    notify:
+    - Reload bind
+  - name: Configure bind9 zone files
+    template:
+      src: named.rfc1912.zones.j2
+      dest: "/etc/named.rfc1912.zones"
+    vars:
+      item: "{{ servers | selectattr('name', 'equalto', inventory_hostname) | first }}"
+    notify:
+    - Reload bind
+  - name: Check validity of named.conf
+    ansible.builtin.command: named-checkconf
+    register: bind_reg_named_checkconf
+    become: true
+    become_user: root
+    changed_when: false
+    vars:
+      ansible_ssh_pipelining: true

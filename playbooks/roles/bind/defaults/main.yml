@@ -1,0 +1,46 @@
+bind_packages:
+  - bind
+  - bind-utils
+named_logging:
+  categories:
+    queries:
+      - query_log
+    default:
+      - default_debug
+    query-errors:
+      - error_log
+    dnssec:
+      - dnssec_log
+      - default_debug
+    notify:
+      - zone_transfers_log
+      - default_debug
+    xfer-in:
+      - zone_transfers_log
+      - default_debug
+    xfer-out:
+      - zone_transfers_log
+      - default_debug
+      
+  channel_defaults:
+    severity: dynamic
+    print-time: yes
+    print-category: yes
+    print-severity: yes
+
+  channels:
+    query_log:
+      file: "/var/log/named/queries.log"
+
+    error_log:
+      file: "/var/log/named/errors.log"
+
+    dnssec_log:
+      file: "/var/log/named/dnssec.log"
+      versions: 3
+      size: 20m
+
+    zone_transfers_log:
+      file: "/var/log/named/zone_transfers.log"
+      versions: 3
+      size: 20m

@@ -1,0 +1,76 @@
+//
+// named.conf
+//
+// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+// server as a caching only nameserver (as a localhost DNS resolver only).
+//
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+
+acl internal-server { 
+{% for net in networks %} {{ net }}; {% endfor %} 
+};
+
+options {
+	listen-on port 53 { 127.0.0.1; {{ item.ip }}; };
+	listen-on-v6 port 53 { ::1; };
+	directory 	"/var/named";
+	dump-file 	"/var/named/data/cache_dump.db";
+	statistics-file "/var/named/data/named_stats.txt";
+	memstatistics-file "/var/named/data/named_mem_stats.txt";
+	secroots-file	"/var/named/data/named.secroots";
+	recursing-file	"/var/named/data/named.recursing";
+	allow-query     { localhost; internal-server; };
+        allow-recursion { localhost; internal-server; };     
+
+	/* 
+	 - If you are building an AUTHORITATIVE DNS server, do NOT enable recursion.
+	 - If you are building a RECURSIVE (caching) DNS server, you need to enable 
+	   recursion. 
+	 - If your recursive DNS server has a public IP address, you MUST enable access 
+	   control to limit queries to your legitimate users. Failing to do so will
+	   cause your server to become part of large scale DNS amplification 
+	   attacks. Implementing BCP38 within your network would greatly
+	   reduce such attack surface 
+	*/
+	recursion yes;
+
+	dnssec-validation yes;
+
+	managed-keys-directory "/var/named/dynamic";
+	geoip-directory "/usr/share/GeoIP";
+
+	pid-file "/run/named/named.pid";
+	session-keyfile "/run/named/session.key";
+	/* https://fedoraproject.org/wiki/Changes/CryptoPolicy */
+	include "/etc/crypto-policies/back-ends/bind.config";
+};
+
+statistics-channels {
+               inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};
+logging {
+{% for cat, chans in named_logging.categories.items() %}
+    category {{ cat }} { {% for ch in chans %}{{ ch }}; {% endfor %}};
+{% endfor %}
+   
+ {% set defaults = named_logging.channel_defaults %}
+
+{% for name, ch in named_logging.channels.items() %}
+channel {{ name }} {
+    file "{{ ch.file }}"{% if ch.versions is defined or ch.size is defined %}{% if ch.versions %} versions {{ ch.versions }}{% endif %}{% if ch.size %} size {{ ch.size }}{% endif %}{% endif %};
+    severity {{ ch.severity | default(defaults.severity) }};
+    print-time {{ ch['print-time'] | default(defaults['print-time']) }};
+    print-category {{ ch['print-category'] | default(defaults['print-category']) }};
+    print-severity {{ ch['print-severity'] | default(defaults['print-severity']) }};
+};
+{% endfor %}
+};
+
+zone "." IN {
+	type hint;
+	file "named.ca";
+};
+
+include "/etc/named.rfc1912.zones";
+include "/etc/named.root.key";

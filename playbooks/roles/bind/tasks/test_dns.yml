@@ -1,0 +1,44 @@
+# test_dns.yml
+
+- name: Pick current server object from servers list
+  set_fact:
+    current_server: "{{ servers | selectattr('name', 'equalto', inventory_hostname) | first }}"
+
+- name: Forward records list
+  set_fact:
+    forward_zone: "{{ (zones | rejectattr('name', 'search', 'in-addr.arpa') | list)[0] }}"
+    reverse_zone: "{{ (zones | selectattr('name', 'search', 'in-addr.arpa') | list)[0] }}"
+
+- name: reverse records list
+  set_fact:
+    forward_records: "{{ forward_zone.records | selectattr('type','equalto','A') | list }}"
+    reverse_records: "{{ reverse_zone.records | selectattr('type','equalto','PTR') | list }}"
+
+- name: Test A records with dig from THIS DNS server only
+  command: >
+    dig +short @{{ current_server.ip }} {{ item.data }}
+  loop: "{{ reverse_records }}"
+  register: dig_forward
+  changed_when: false
+
+- name: Show stdout only
+  debug:
+    msg: |
+      {% for r in dig_forward.results %}
+      dig {{ r.cmd | join(' ') }} => {{ r.stdout }} 
+      {% endfor %}
+
+- name: Test reverse dns requests
+  command: >
+    dig +short @{{ current_server.ip }} -x {{ item.data }}
+  loop: "{{ forward_records }}"
+  register: dig_reverse
+  changed_when: false
+
+- name: Show stdout only
+  debug:
+    msg: |
+      {% for r in dig_reverse.results %}
+      dig {{ r.cmd | join(' ') }} => {{ r.stdout }} 
+      {% endfor %}
+

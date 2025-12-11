@@ -1,0 +1,47 @@
+---
+- name: Install bind packages
+  ansible.builtin.dnf:
+    pkg: "{{ bind_packages }}"
+    state: present
+
+- name: Enable and Start bind service
+  ansible.builtin.service:
+    name: named
+    state: started
+    enabled: yes
+
+- name: Create DNS logs directories
+  ansible.builtin.file:
+    path: /var/log/named  # The path DNS logs 
+    state: directory
+    owner: named
+    group: named
+    mode: '0755'  # Optional: set the permissions for the directory
+
+- name: check existing SElinux fcontexts
+  ansible.builtin.command: semanage fcontext -l
+  register: fcontexts
+  changed_when: false
+
+- name: label /var/log/named for BIND logs in not existing 
+  ansible.builtin.command: >
+    semanage fcontext -a -t named_log_t '/var/log/named(/.*)?'
+  when: "'/var/log/named(/.*)?' not in fcontexts.stdout"
+
+- name: apply SELinux context for DNS to /var/log/named
+  ansible.builtin.command: restorecon -Rv /var/log/named
+
+- name: add dns in firewall rules
+  ansible.posix.firewalld:
+    service: dns
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: add 8053 port in firewall rules for metrics collection
+  ansible.posix.firewalld:
+    port: 8053/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+  notify: Restart bind
